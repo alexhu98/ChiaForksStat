@@ -16,8 +16,10 @@ class Stat:
     farm_yesterday = ''
     farm_today = ''
     farm_plot_count = ''
+    farm_plot_size = ''
     farm_etw = ''
     network_space = ''
+    updated = None
 
 
 class Column:

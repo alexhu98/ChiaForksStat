@@ -1,0 +1,39 @@
+# The blockchain executable file is normally found in the following folder.
+#
+# WINDOWS EXAMPLE: C:\Users\admin\AppData\Local\chia-blockchain\app-1.1.5\resources\app.asar.unpacked\daemon\chia.exe
+#   LINUX EXAMPLE: /usr/lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
+#  LINUX2 EXAMPLE: /home/admin/chia-blockchain/venv/bin/chia
+#  MAC OS EXAMPLE: /Applications/Chia.app/Contents/Resources/app.asar.unpacked/daemon/chia
+
+# stat_folder: This variable defines where the stat files are created and then read from.
+# if running different coins in different machines, the stat_folder can point to a common
+# shared folder in your desktop machine where you will also run the stat.py to view all the stat.
+#
+stat_folder:
+
+# refresh_interval: The number of seconds to wait before checking to see if a new job should start.
+refresh_interval: 60
+
+coins:
+  # These are the name of the coin and the executable file.
+  #
+  # name: The coin name, also used to create the stat file in the stat_folder.
+  # command: The blockchain executable file. If present, it is used to generate the stat file in the stat_folder.
+  #
+  - name: Chia XCH
+    command:
+
+  - name: Chives XCC
+    command:
+
+  - name: Flax XFX
+    command:
+
+  - name: HDD coin
+    command:
+
+  - name: Skynet XNT
+    command:
+
+  - name: STAI coin
+    command:
