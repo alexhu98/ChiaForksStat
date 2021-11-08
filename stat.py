@@ -13,14 +13,14 @@ stat_folder = '/data/chia/stat'
 coins = []
 
 columns = [
-    Column('name', 'Name', 15),
-    Column('farm_plot_count', 'Plots', 6),
-    Column('wallet_balance', 'Balance', 10),
-    Column('farm_yesterday', 'Yesterday', 10),
+    Column('name', 'Name', 10),
     Column('farm_today', 'Today', 10),
-    Column('farm_etw', 'Estimated time to win', 25),
-    Column('farm_plot_size', 'Total plot size', 17),
+    Column('farm_yesterday', 'Yesterday', 10),
+    Column('wallet_balance', 'Balance', 9),
+    Column('farm_plot_count', 'Plots', 7),
+    Column('farm_plot_size', 'Total size', 12),
     Column('network_space', 'Network space', 15),
+    Column('farm_etw', 'Estimated time to win', 23),
     Column('node_status', 'Node', 10),
     Column('wallet_status', 'Wallet', 10),
     Column('farm_status', 'Farm', 10),
@@ -52,8 +52,15 @@ def read_config(argv):
 
     stat_folder = config.get('stat_folder', None)
     refresh_interval = int(config.get('refresh_interval', '60'))
+    max_name_length = 10
     for coin_dict in config.get('coins', None):
-        coins.append(Coin(coin_dict['name'], coin_dict['command']))
+        name = coin_dict['name']
+        if max_name_length < len(name) + 2:
+            max_name_length = len(name) + 2
+        coins.append(Coin(name, coin_dict['command']))
+    for column in columns:
+        if column.id == 'name':
+            column.width = max_name_length
     return config
 
 
@@ -84,6 +91,7 @@ def format_number(num):
         num = num[0:6]
     return num
 
+
 def parse_stat_file(coin, stat_folder):
     stat = Stat()
     stat.name = coin.name
@@ -97,7 +105,7 @@ def parse_stat_file(coin, stat_folder):
         # skip if the stat_file is not up-to-date
         struct_time = time.localtime(stat.updated)
         dt = datetime.datetime(*struct_time[:6])
-        if dt + datetime.timedelta(minutes=5) > datetime.datetime.now():
+        if dt + datetime.timedelta(minutes=5 + int(refresh_interval / 60)) > datetime.datetime.now():
             amount = None
             for line in lines:
                 tokens = line.split()
@@ -105,8 +113,12 @@ def parse_stat_file(coin, stat_folder):
                     stat.node_status = ' '.join(tokens[3:])
                     if stat.node_status == 'Full Node Synced':
                         stat.node_status = 'Synced'
+                    if stat.node_status.startswith('Syncing'):
+                        stat.node_status = 'Syncing'
                 if line.startswith('Sync status:'):
                     stat.wallet_status = ' '.join(tokens[2:])
+                    if stat.wallet_status.startswith('Syncing'):
+                        stat.wallet_status = 'Syncing'
                 if line.startswith('   -Total Balance:'):
                     if len(stat.wallet_balance) == 0:
                         stat.wallet_balance = tokens[2]
@@ -118,6 +130,8 @@ def parse_stat_file(coin, stat_folder):
                     stat.farm_plot_count = tokens[-1]
                 if line.startswith('Plot count:'):
                     stat.farm_plot_count = tokens[-1]
+                if stat.farm_plot_count == 'Unknown':
+                    stat.farm_plot_count = ''
                 if line.startswith('Total size of plots:'):
                     stat.farm_plot_size = ' '.join(tokens[4:])
                     if stat.farm_plot_size == 'Unknown':
@@ -176,33 +190,38 @@ def print_stat(stat, columns):
         uprint(line.strip())
 
 
+def refresh_stat():
+    updated = None
+    if os.name == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
+    print_heading(columns)
+    for coin in coins:
+        stat = parse_stat_file(coin, stat_folder)
+        if stat is not None:
+            if updated is None:
+                updated = stat.updated
+            elif updated < stat.updated:
+                updated = stat.updated
+            print_stat(stat, columns)
+    uprint('')
+    if updated is not None:
+        uprint('Last updated: %s' % (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(updated))))
+
+
 def main(argv):
     read_config(argv)
     first = True
     try:
-        updated = None
         while True:
-            if not first:
-                for coin in coins:
-                    gether_stat(coin, stat_folder)
-            if os.name == 'nt':
-                os.system('cls')
-            else:
-                os.system('clear')
-            print_heading(columns)
-            for coin in coins:
-                stat = parse_stat_file(coin, stat_folder)
-                if stat is not None:
-                    if updated is None:
-                        updated = stat.updated
-                    elif updated < stat.updated:
-                        updated = stat.updated
-                    print_stat(stat, columns)
-            uprint('')
-            uprint('Last updated: %s' % (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(updated))))
             if first:
                 first = False
+                refresh_stat()
             else:
+                for coin in coins:
+                    gether_stat(coin, stat_folder)
+                    refresh_stat()
                 time.sleep(refresh_interval)
     except KeyboardInterrupt:
         pass

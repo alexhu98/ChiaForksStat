@@ -12,7 +12,7 @@
 stat_folder:
 
 # refresh_interval: The number of seconds to wait before checking to see if a new job should start.
-refresh_interval: 60
+refresh_interval: 300
 
 coins:
   # These are the name of the coin and the executable file.
