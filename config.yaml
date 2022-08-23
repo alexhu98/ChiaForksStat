@@ -1,0 +1,39 @@
+# The the blockchain executable file is normally found in the following folder.
+#
+# WINDOWS EXAMPLE: C:\Users\admin\AppData\Local\chia-blockchain\app-1.1.5\resources\app.asar.unpacked\daemon\chia.exe
+#   LINUX EXAMPLE: /usr/lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
+#  LINUX2 EXAMPLE: /home/admin/chia-blockchain/venv/bin/chia
+#  MAC OS EXAMPLE: /Applications/Chia.app/Contents/Resources/app.asar.unpacked/daemon/chia
+
+# stat_folder: This variable defines where the stat files are created, and read from.
+stat_folder: /data/chia/stat
+
+# refresh_interval: The number of seconds to wait before checking to see if a new job should start.
+refresh_interval: 300
+
+
+coins:
+  # These are the name of the coin and the executable file.
+  #
+  # name: The coin name, also used to create the stat file in the stat_folder.
+  # command: The executable file.
+  - name: Chia XCH
+    command: /usr/lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
+
+  - name: Flax XFX
+    command: /usr/lib/flax-blockchain/resources/app.asar.unpacked/daemon/flax
+
+  - name: Flora XFL
+    command: /usr/lib/flora-blockchain/resources/app.asar.unpacked/daemon/flora
+
+  - name: HDD coin
+    command: /usr/lib/hddcoin-blockchain/resources/app.asar.unpacked/daemon/hddcoin
+
+  - name: Skynet XNT
+    command: /usr/lib/skynet-blockchain/resources/app.asar.unpacked/daemon/skynet
+
+  - name: STAI coin
+    command: /usr/lib/staicoin-blockchain/resources/app.asar.unpacked/daemon/staicoin
+
+  - name: Chives XCC
+    command:

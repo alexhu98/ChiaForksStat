@@ -14,9 +14,9 @@ coins = []
 
 columns = [
     Column('name', 'Name', 10),
-    Column('farm_today', 'Today', 10),
-    Column('farm_yesterday', 'Yesterday', 10),
-    Column('wallet_balance', 'Balance', 9),
+    Column('farm_today', 'Today', 15),
+    Column('farm_yesterday', 'Yesterday', 15),
+    Column('wallet_balance', 'Balance', 11),
     Column('farm_plot_count', 'Plots', 7),
     Column('farm_plot_size', 'Total size', 12),
     Column('network_space', 'Network space', 15),
@@ -65,7 +65,7 @@ def read_config(argv):
 
 
 def gether_stat(coin, stat_folder):
-    if coin.command is not None and len(coin.command) > 0:
+    if os.path.exists(stat_folder) and coin.command is not None and len(coin.command) > 0:
         out1, _ = subprocess.Popen([coin.command, 'show', '-s'], stderr=subprocess.PIPE, universal_newlines=True,stdout=subprocess.PIPE).communicate()
         out2, _ = subprocess.Popen([coin.command, 'wallet', 'show'], stderr=subprocess.PIPE, universal_newlines=True,stdout=subprocess.PIPE).communicate()
         out3, _ = subprocess.Popen([coin.command, 'farm', 'summary'], stderr=subprocess.PIPE, universal_newlines=True,stdout=subprocess.PIPE).communicate()
@@ -82,13 +82,13 @@ def gether_stat(coin, stat_folder):
         stat_file.close()
         
 
-def format_number(num):
+def format_number(num, precision=6):
     if isinstance(num, float):
         num = '%s' % num
     if num.endswith('.0'):
         num = num[:-2]
-    if len(num) > 6:
-        num = num[0:6]
+    if len(num) > precision:
+        num = num[0:precision]
     return num
 
 
@@ -165,9 +165,9 @@ def parse_stat_file(coin, stat_folder):
                         else:
                             stat.farm_yesterday += amount
                     amount = None
-            stat.wallet_balance = format_number(stat.wallet_balance)
-            stat.farm_yesterday = format_number(stat.farm_yesterday)
-            stat.farm_today = format_number(stat.farm_today)
+            stat.wallet_balance = format_number(stat.wallet_balance, 10)
+            stat.farm_yesterday = format_number(stat.farm_yesterday, 14)
+            stat.farm_today = format_number(stat.farm_today, 14)
     return stat
 
 
